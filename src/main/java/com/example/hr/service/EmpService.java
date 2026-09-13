@@ -7,6 +7,7 @@ import org.springframework.ui.Model;
 import com.example.hr.dto.CodeName;
 import com.example.hr.dto.EmpDto;
 import com.example.hr.dto.EmpSearchCond;
+import com.example.hr.dto.PageDto;
 
 public interface EmpService {
 	int totalCnt();
@@ -15,8 +16,11 @@ public interface EmpService {
 
 	Integer avgSalary();
 
-	// 검색/페이징된 목록 + 페이징 정보를 model에 담는다
-	void selectByCond(EmpSearchCond cond, Model model);
+	// 검색/페이징 조건에 맞는 목록만 리턴
+	List<EmpDto> selectByCond(EmpSearchCond cond);
+
+	// 같은 조건의 페이징 정보(전체/검색결과 건수, 전체 페이지수)만 리턴
+	PageDto pageInfo(EmpSearchCond cond);
 
 	List<EmpDto> selectRecentHires(int limit);
 

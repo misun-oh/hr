@@ -8,6 +8,7 @@
   <link rel="stylesheet" th:href="@{/css/component.css}">
   <link rel="stylesheet" th:href="@{/css/app-shell.css}">
   <link rel="stylesheet" th:href="@{/css/hr.css}">
+  <script th:src="@{/js/modal.js}" defer></script>
   <script th:src="@{/js/component.js}" defer></script>
 </head>
 <body>
@@ -32,6 +33,11 @@
         <p>전체 [[${totalCnt}]]개 부서</p>
       </div>
       <button class="btn btn--primary" type="button" data-modal-open="dept-modal">+ 부서 추가</button>
+    </div>
+
+    <div class="alert alert--danger mb-4" th:if="${errorMessage}">
+      <span class="alert__icon">⚠</span>
+      <span class="alert__body" th:text="${errorMessage}">에러 메시지</span>
     </div>
 
     <div class="table-wrap">
@@ -75,9 +81,10 @@
           <input class="input" id="d-name" name="deptTitle" placeholder="신사업개발부" required>
         </div>
         <div class="field">
-          <label class="label" for="d-loc">근무지</label>
-          <select class="select" id="d-loc" name="locationId">
-            <option value="">선택 안 함</option>
+          <label class="label" for="d-loc">근무지 *</label>
+          <!-- DB의 dept.location_id가 NOT NULL(+FK)이라 근무지는 선택 필수 -->
+          <select class="select" id="d-loc" name="locationId" required>
+            <option value="">선택하세요</option>
             <option th:each="loc : ${locations}" th:value="${loc.code}" th:text="${loc.name}">한국</option>
           </select>
         </div>

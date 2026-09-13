@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.ui.ExtendedModelMap;
-import org.springframework.ui.Model;
 
+import java.util.List;
+
+import com.example.hr.dto.EmpDto;
 import com.example.hr.dto.EmpSearchCond;
+import com.example.hr.dto.PageDto;
 
 @SpringBootTest
 public class EmpServiceTest {
@@ -25,8 +27,13 @@ public class EmpServiceTest {
 
 	@Test
 	public void selectByCond() {
-		Model model = new ExtendedModelMap();
-		service.selectByCond(new EmpSearchCond(), model);
-		System.out.println(model.getAttribute("list"));
+		List<EmpDto> list = service.selectByCond(new EmpSearchCond());
+		System.out.println(list);
+	}
+
+	@Test
+	public void pageInfo() {
+		PageDto page = service.pageInfo(new EmpSearchCond());
+		System.out.println(page);
 	}
 }

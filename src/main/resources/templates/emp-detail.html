@@ -8,6 +8,7 @@
   <link rel="stylesheet" th:href="@{/css/component.css}">
   <link rel="stylesheet" th:href="@{/css/app-shell.css}">
   <link rel="stylesheet" th:href="@{/css/hr.css}">
+  <script th:src="@{/js/modal.js}" defer></script>
   <script th:src="@{/js/component.js}" defer></script>
 </head>
 <body>
@@ -73,8 +74,11 @@
           <tr><th>이름</th><td th:text="${emp.empName}">박지민</td></tr>
           <tr><th>주민등록번호</th><td th:text="${emp.empNo}">870405-2789012</td></tr>
           <tr><th>이메일</th><td th:text="${emp.email}">park_jm@company.com</td></tr>
+          <!-- ?: 는 엘비스 연산자 : 앞 값(emp.phone)이 null이면 뒤 값('-')을 대신 사용 -->
+          <!-- (${emp.phone} != null ? ${emp.phone} : '-' 를 줄여쓴 것) -->
           <tr><th>전화</th><td th:text="${emp.phone} ?: '-'">010-3665-4875</td></tr>
           <tr><th>입사일</th><td th:text="${emp.hireDate}">2015-05-20</td></tr>
+          <tr><th>근속년수</th><td th:text="${emp.yearsOfService} + '년'">10년</td></tr>
           <tr><th>퇴사일</th><td th:if="${not emp.active}" th:text="${emp.entDate}">2025-09-12</td>
               <td th:if="${emp.active}">-</td></tr>
           <tr><th>재직 여부</th><td>
@@ -86,6 +90,15 @@
 
       <div class="tabs__panel" role="tabpanel" id="p-pay" aria-labelledby="t-pay" hidden>
         <table class="info-table">
+          <!--
+            #numbers : 숫자 포맷팅을 위한 타임리프 내장 유틸리티 객체 (${#numbers....} 형태로 사용)
+            formatInteger(숫자, 최소자릿수, 천단위구분방식)
+              - 1번째 인자 : 포맷할 숫자
+              - 2번째 인자 : 최소 정수 자릿수 (모자라면 앞에 0을 채움, 0이면 그냥 있는 그대로)
+              - 3번째 인자 : 천단위 구분자 방식 - 'COMMA'(1,000) / 'POINT'(1.000) / 'NONE'(1000) / 'DEFAULT'(로케일 기본값)
+              예) formatInteger(3500000, 0, 'COMMA') -> "3,500,000"
+            비슷하게 소수점 숫자는 formatDecimal(숫자, 정수부최소자릿수, 소수부자릿수)를 사용 (아래 보너스율 참고)
+          -->
           <tr><th>기본급(월)</th><td th:text="${#numbers.formatInteger(emp.salary, 0, 'COMMA')} + '원'">3,500,000원</td></tr>
           <tr><th>보너스율</th><td th:text="${emp.bonus} != null ? ${#numbers.formatDecimal(emp.bonus * 100, 0, 0)} + '%' : '없음'">15%</td></tr>
           <tr><th>예상 연봉</th>

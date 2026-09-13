@@ -190,9 +190,18 @@
   box-shadow: var(--shadow-sm);
   transition: transform var(--duration) var(--ease-out);
 }
-.switch input:checked + .switch__track { background: var(--color-success); }
-.switch input:checked + .switch__track .switch__thumb { transform: translateX(1.3em); }
-.switch input:focus-visible + .switch__track { outline: 3px solid var(--color-accent); outline-offset: 2px; }
+/* 선택자 ".switch input:checked ~ .switch__track" 해설
+     .switch input:checked  -> 결합자가 "공백"(후손 결합자) : .switch 요소 "안에 있는"(직계자식 아니어도 됨) input:checked
+     ~ .switch__track       -> 결합자가 "~"(일반 형제 결합자) : 그 input과 형제 사이인데, "바로 다음"이 아니라
+                                "이후에 오는 형제 중" switch__track 클래스가 있으면 전부 매치
+
+   +(바로 다음 형제) 대신 ~(이후 형제 전부)를 쓰는 이유 :
+   th:field로 렌더링된 체크박스는 뒤에 스프링이 자동으로 숨은 <input type="hidden" name="_active">를
+   끼워 넣어서, .switch__track이 더 이상 체크박스의 "바로 다음" 형제가 아니게 됨
+   (+였다면 사이에 낀 hidden input 때문에 매치가 안 되어 토글이 안 움직이는 버그가 생김) */
+.switch input:checked ~ .switch__track { background: var(--color-success); }
+.switch input:checked ~ .switch__track .switch__thumb { transform: translateX(1.3em); }
+.switch input:focus-visible ~ .switch__track { outline: 3px solid var(--color-accent); outline-offset: 2px; }
 .switch__label { font-size: var(--text-base); }
 
 /* =============================================================================

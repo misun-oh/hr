@@ -132,66 +132,6 @@
   }
 
   /* =========================================================================
-   * 모달
-   * ====================================================================== */
-  const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
-  let lastFocused = null;
-
-  function openModal(id) {
-    const modal = document.getElementById(id);
-    if (!modal || !modal.hasAttribute("data-modal")) return;
-    lastFocused = document.activeElement;
-    modal.hidden = false;
-    // 다음 프레임에 클래스 추가 → CSS 트랜지션 발동
-    requestAnimationFrame(() => modal.classList.add("is-open"));
-    document.body.classList.add("modal-open");
-
-    const panel = $(".modal__panel", modal);
-    const focusables = panel ? $$(FOCUSABLE, panel) : [];
-    (focusables[0] || panel || modal).focus({ preventScroll: true });
-
-    modal._onKeydown = (e) => {
-      if (e.key === "Escape") closeModal(id);
-      if (e.key === "Tab" && focusables.length) {
-        const first = focusables[0];
-        const last = focusables[focusables.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-      }
-    };
-    document.addEventListener("keydown", modal._onKeydown);
-  }
-
-  function closeModal(id) {
-    const modal = document.getElementById(id);
-    if (!modal) return;
-    modal.classList.remove("is-open");
-    document.body.classList.remove("modal-open");
-    if (modal._onKeydown) document.removeEventListener("keydown", modal._onKeydown);
-
-    const done = () => { modal.hidden = true; modal.removeEventListener("transitionend", done); };
-    if (prefersReducedMotion()) done();
-    else {
-      modal.addEventListener("transitionend", done);
-      setTimeout(done, 400); // 안전장치
-    }
-    if (lastFocused) lastFocused.focus({ preventScroll: true });
-  }
-
-  function initModals(root) {
-    $$("[data-modal-open]", root).forEach((btn) => {
-      if (!onceInit(btn, "modalTrigger")) return;
-      btn.addEventListener("click", () => openModal(btn.getAttribute("data-modal-open")));
-    });
-    $$("[data-modal]", root).forEach((modal) => {
-      if (!onceInit(modal, "modalReady")) return;
-      $$("[data-modal-close]", modal).forEach((el) =>
-        el.addEventListener("click", () => closeModal(modal.id))
-      );
-    });
-  }
-
-  /* =========================================================================
    * 아코디언 (한 번에 하나만 열기)
    * ====================================================================== */
   function initAccordion(root) {
@@ -407,7 +347,9 @@
    * ====================================================================== */
   function init(root = document) {
     $$("[data-carousel]", root).forEach(initCarousel);
-    initModals(root);
+    // 모달은 modal.js(component.js보다 먼저 로드)가 등록해둔 UI.modal을 호출해서 초기화
+    // modal.js를 안 불러온 화면이면 UI.modal이 없을 수 있으니 optional chaining으로 방어
+    global.UI?.modal?.init(root);
     $$("[data-accordion]", root).forEach(initAccordion);
     $$("[data-tabs]", root).forEach(initTabs);
     $$("[data-dropdown]", root).forEach(initDropdown);
@@ -418,13 +360,13 @@
 
   theme._restore(); // FOUC 방지: 최대한 빨리 저장된 테마 적용
 
-  const UI = {
-    init,
-    modal: { open: openModal, close: closeModal },
-    toast,
-    theme,
-    carousel: (el) => el._carousel || initCarousel(el),
-  };
+  // modal.js가 먼저 로드되어 global.UI.modal을 이미 등록해뒀을 수 있으니,
+  // 통째로 덮어쓰지 않고 기존 UI 객체 위에 이어붙임
+  const UI = global.UI || {};
+  UI.init = init;
+  UI.toast = toast;
+  UI.theme = theme;
+  UI.carousel = (el) => el._carousel || initCarousel(el);
   global.UI = UI;
 
   if (document.readyState === "loading") {

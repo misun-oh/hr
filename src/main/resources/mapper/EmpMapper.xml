@@ -5,6 +5,16 @@
      namespace = 매퍼 인터페이스 FQCN, <select id> = 메서드명 -->
 <mapper namespace="com.example.hr.mapper.EmpMapper">
 
+	<!--
+		동적쿼리(Dynamic SQL) 사용법
+		- <where> : 안에 있는 조건들 중 실제로 하나라도 붙으면 자동으로 맨 앞에 WHERE를 붙여줌
+		            조건이 하나도 안 붙으면(전부 <if>가 false) WHERE절 자체를 아예 안 씀
+		            조건이 and로 시작하더라도, 맨 앞의 불필요한 and는 자동으로 잘라줌
+		- <if test="...">: test에 쓴 자바 식(파라미터 프로퍼티 이름 기준)이 true일 때만 그 안의 SQL 조각을 포함
+		                    예) keyword 파라미터가 null도 아니고 빈 문자열도 아닐 때만 검색조건 추가
+		- <sql id="...">  : 이렇게 만들어둔 SQL 조각은 <include refid="..."/>로 다른 쿼리에서 재사용 가능
+		                    (여기서는 selectByCond, countByCond 둘 다 whereCond를 그대로 가져다 씀)
+	-->
 	<sql id="whereCond">
 		<where>
 			<if test="keyword != null and keyword != ''">
@@ -55,7 +65,10 @@
 		       e.hire_date, e.ent_date, e.ent_yn,
 		       d.dept_title as dept_name, j.job_name as job_name, m.emp_name as manager_name,
 		       n.national_name as location_name,
-		       sg.sal_level as sal_grade, sg.min_sal as sal_grade_min, sg.max_sal as sal_grade_max
+		       <!-- sal_grade : 급여 구간별 등급 테이블. sg.min_sal ~ sg.max_sal 사이에 e.salary가 들어가는
+		            행 하나를 join해서 그 등급코드(sal_level)와 구간(min_sal~max_sal)을 함께 조회 -->
+		       sg.sal_level as sal_grade, sg.min_sal as sal_grade_min, sg.max_sal as sal_grade_max,
+		       timestampdiff(year, e.hire_date, ifnull(e.ent_date, curdate())) as years_of_service
 		from emp e
 		left join dept d on e.dept_id = d.dept_id
 		left join job j on e.job_code = j.job_code

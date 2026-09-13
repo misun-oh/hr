@@ -98,18 +98,26 @@
       </table>
     </div>
 
-    <!-- 페이징: 검색 조건을 그대로 이어붙여 유지한다 -->
-    <nav class="pagination mt-6" aria-label="페이지" th:if="${totalPages > 1}">
+    <!-- 페이징(블럭 단위): 검색 조건을 그대로 이어붙여 유지한다 -->
+    <nav class="pagination mt-6" aria-label="페이지" th:if="${page.totalPage > 1}">
+      <a class="pagination__item"
+         th:href="@{/emps(keyword=${cond.keyword}, deptId=${cond.deptId}, workingOnly=${cond.workingOnly}, sort=${cond.sort}, page=${page.startPage - 1})}"
+         th:classappend="${!page.prev} ? 'is-disabled'" aria-label="이전 블럭">«</a>
       <a class="pagination__item"
          th:href="@{/emps(keyword=${cond.keyword}, deptId=${cond.deptId}, workingOnly=${cond.workingOnly}, sort=${cond.sort}, page=${cond.page - 1})}"
          th:classappend="${cond.page <= 1} ? 'is-disabled'" aria-label="이전">‹</a>
-      <a class="pagination__item" th:each="i : ${#numbers.sequence(1, totalPages)}"
+      <!-- #numbers.sequence(시작, 끝) : 시작~끝 범위의 정수 리스트를 만들어주는 타임리프 유틸리티 (예: (1,10) -> [1,2,...,10]) -->
+      <!-- th:each로 그 리스트를 순회하며 페이지 번호 버튼(1개당 <a> 1개)을 반복 출력 -->
+      <a class="pagination__item" th:each="i : ${#numbers.sequence(page.startPage, page.endPage)}"
          th:href="@{/emps(keyword=${cond.keyword}, deptId=${cond.deptId}, workingOnly=${cond.workingOnly}, sort=${cond.sort}, page=${i})}"
          th:text="${i}"
          th:attr="aria-current=${i == cond.page} ? 'page' : null">1</a>
       <a class="pagination__item"
          th:href="@{/emps(keyword=${cond.keyword}, deptId=${cond.deptId}, workingOnly=${cond.workingOnly}, sort=${cond.sort}, page=${cond.page + 1})}"
-         th:classappend="${cond.page >= totalPages} ? 'is-disabled'" aria-label="다음">›</a>
+         th:classappend="${cond.page >= page.totalPage} ? 'is-disabled'" aria-label="다음">›</a>
+      <a class="pagination__item"
+         th:href="@{/emps(keyword=${cond.keyword}, deptId=${cond.deptId}, workingOnly=${cond.workingOnly}, sort=${cond.sort}, page=${page.endPage + 1})}"
+         th:classappend="${!page.next} ? 'is-disabled'" aria-label="다음 블럭">»</a>
     </nav>
   </main>
 
