@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>로그인 · 사원관리</title>
-  <link rel="stylesheet" href="css/basic.css">
-  <link rel="stylesheet" href="css/component.css">
-  <link rel="stylesheet" href="css/app-shell.css">
-  <link rel="stylesheet" href="css/hr.css">
-  <script src="js/component.js" defer></script>
+  <link rel="stylesheet" th:href="@{/css/basic.css}">
+  <link rel="stylesheet" th:href="@{/css/component.css}">
+  <link rel="stylesheet" th:href="@{/css/app-shell.css}">
+  <link rel="stylesheet" th:href="@{/css/hr.css}">
+  <script th:src="@{/js/component.js}" defer></script>
 </head>
 <body>
   <!--
@@ -28,8 +28,8 @@
         <p class="muted" style="font-size: var(--text-sm)">사내 계정으로 로그인하세요.</p>
       </div>
 
-      <!-- 로그인 실패 시 서버가 이 배너를 렌더링 (예시로 표시해 둠) -->
-      <div class="alert alert--danger" role="alert">
+      <!-- 로그인 실패 시 서버가 이 배너를 렌더링 -->
+      <div class="alert alert--danger" role="alert" th:if="${param.error}">
         <span class="alert__icon" aria-hidden="true">!</span>
         <div class="alert__body">아이디 또는 비밀번호가 올바르지 않습니다.</div>
       </div>
@@ -61,7 +61,7 @@
     document.addEventListener("DOMContentLoaded", function () {
       document.querySelector("[data-login-form]").addEventListener("submit", function (e) {
         e.preventDefault();
-        location.href = "dashboard.html";
+        location.href = "/dashboard";
       });
     });
   </script>

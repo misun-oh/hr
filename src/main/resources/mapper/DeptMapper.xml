@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.hr.mapper.DeptMapper">
+
+	<select id="selectAllWithStats" resultType="DeptDto">
+		select d.dept_id, d.dept_title,
+		       n.national_name as location_name,
+		       count(e.emp_id) as emp_count,
+		       round(avg(e.salary)) as avg_salary
+		from dept d
+		left join location l on d.location_id = l.local_code
+		left join national n on l.national_code = n.national_code
+		left join emp e on e.dept_id = d.dept_id and e.ent_yn = 'N'
+		group by d.dept_id, d.dept_title, n.national_name
+		order by d.dept_id
+	</select>
+
+	<insert id="insert">
+		insert into dept (dept_id, dept_title, location_id)
+		values (#{deptId}, #{deptTitle}, #{locationId})
+	</insert>
+
+</mapper>

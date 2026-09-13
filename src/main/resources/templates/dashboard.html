@@ -1,28 +1,27 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>대시보드 · 사원관리</title>
-  <link rel="stylesheet" href="css/basic.css">
-  <link rel="stylesheet" href="css/component.css">
-  <link rel="stylesheet" href="css/app-shell.css">
-  <link rel="stylesheet" href="css/hr.css">
-  <script src="js/component.js" defer></script>
+  <link rel="stylesheet" th:href="@{/css/basic.css}">
+  <link rel="stylesheet" th:href="@{/css/component.css}">
+  <link rel="stylesheet" th:href="@{/css/app-shell.css}">
+  <link rel="stylesheet" th:href="@{/css/hr.css}">
+  <script th:src="@{/js/component.js}" defer></script>
 </head>
 <body>
-  <!-- 공통 메뉴 — templates/hr/_menu.html 참고 (Thymeleaf 전환 시 fragment 로) -->
   <header class="site-header">
     <div class="site-header__inner container container--wide">
-      <a class="site-header__brand" href="index.html">👔 사원관리</a>
+      <a class="site-header__brand" th:href="@{/emps}">👔 사원관리</a>
       <nav class="site-nav hide-mobile" aria-label="주요 메뉴">
-        <a href="index.html">사원 목록</a>
-        <a href="depts.html">부서</a>
-        <a href="dashboard.html" aria-current="page">대시보드</a>
+        <a th:href="@{/emps}">사원 목록</a>
+        <a th:href="@{/depts}">부서</a>
+        <a th:href="@{/dashboard}" aria-current="page">대시보드</a>
       </nav>
       <span class="spacer"></span>
       <button class="btn btn--ghost btn--sm" type="button" data-theme-toggle aria-label="다크 모드 전환">🌓</button>
-      <a class="btn btn--primary btn--sm" href="login.html">로그인</a>
+      <a class="btn btn--primary btn--sm" th:href="@{/login}">로그인</a>
     </div>
   </header>
 
@@ -30,7 +29,6 @@
     <div class="page-head">
       <div>
         <h1>대시보드</h1>
-        <p>2026년 8월 기준</p>
       </div>
     </div>
 
@@ -38,23 +36,20 @@
     <div class="stat-grid">
       <div class="stat">
         <p class="stat__label">전체 사원</p>
-        <p class="stat__value">21명</p>
-        <p class="stat__delta stat__delta--up">▲ 이번 달 +2</p>
+        <p class="stat__value" th:text="${totalCnt} + '명'">21명</p>
       </div>
       <div class="stat">
         <p class="stat__label">재직 중</p>
-        <p class="stat__value">20명</p>
-        <p class="stat__delta stat__delta--down">▼ 퇴사 1</p>
+        <p class="stat__value" th:text="${activeCnt} + '명'">20명</p>
+        <p class="stat__delta muted" th:text="'퇴사 ' + ${inactiveCnt} + '명'">퇴사 1명</p>
       </div>
       <div class="stat">
         <p class="stat__label">부서</p>
-        <p class="stat__value">9개</p>
-        <p class="stat__delta muted">운영 7 · 미배정 2</p>
+        <p class="stat__value" th:text="${deptCnt} + '개'">9개</p>
       </div>
       <div class="stat">
         <p class="stat__label">평균 월급여</p>
-        <p class="stat__value">318만원</p>
-        <p class="stat__delta muted">최고 800만 · 최저 138만</p>
+        <p class="stat__value" th:text="${avgSalary} != null ? ${#numbers.formatInteger(avgSalary, 0, 'COMMA')} + '원' : '-'">318만원</p>
       </div>
     </div>
 
@@ -62,35 +57,13 @@
       <!-- 부서별 인원 -->
       <div class="card" style="padding: var(--space-6)">
         <h3 class="mb-4">부서별 인원</h3>
-        <div class="bar-row">
-          <span class="bar-row__name">해외영업1부</span>
-          <div class="progress"><div class="progress__bar" style="width: 100%"></div></div>
-          <span class="bar-row__count">5명</span>
-        </div>
-        <div class="bar-row">
-          <span class="bar-row__name">인사관리부</span>
-          <div class="progress"><div class="progress__bar" style="width: 60%"></div></div>
-          <span class="bar-row__count">3명</span>
-        </div>
-        <div class="bar-row">
-          <span class="bar-row__name">회계관리부</span>
-          <div class="progress"><div class="progress__bar" style="width: 60%"></div></div>
-          <span class="bar-row__count">3명</span>
-        </div>
-        <div class="bar-row">
-          <span class="bar-row__name">기술지원부</span>
-          <div class="progress"><div class="progress__bar" style="width: 60%"></div></div>
-          <span class="bar-row__count">3명</span>
-        </div>
-        <div class="bar-row">
-          <span class="bar-row__name">총무부</span>
-          <div class="progress"><div class="progress__bar" style="width: 60%"></div></div>
-          <span class="bar-row__count">3명</span>
-        </div>
-        <div class="bar-row">
-          <span class="bar-row__name">해외영업2부</span>
-          <div class="progress"><div class="progress__bar" style="width: 40%"></div></div>
-          <span class="bar-row__count">2명</span>
+        <div class="bar-row" th:each="d : ${deptStats}">
+          <span class="bar-row__name" th:text="${d.deptTitle}">해외영업1부</span>
+          <div class="progress">
+            <div class="progress__bar"
+                 th:style="'width: ' + (${totalCnt} > 0 ? (${d.empCount} * 100 / ${totalCnt}) : 0) + '%'"></div>
+          </div>
+          <span class="bar-row__count" th:text="${d.empCount} + '명'">5명</span>
         </div>
       </div>
 
@@ -100,14 +73,14 @@
         <table class="table">
           <thead><tr><th>이름</th><th>부서</th><th>입사일</th></tr></thead>
           <tbody>
-            <tr><td><a href="emp-detail.html">한규원</a></td><td>미배정</td><td>2023-03-01</td></tr>
-            <tr><td><a href="emp-detail.html">조정원</a></td><td>미배정</td><td>2022-09-18</td></tr>
-            <tr><td><a href="emp-detail.html">최주호</a></td><td>해외영업1부</td><td>2022-04-02</td></tr>
-            <tr><td><a href="emp-detail.html">오미자</a></td><td>기술지원부</td><td>2021-11-28</td></tr>
-            <tr><td><a href="emp-detail.html">전태성</a></td><td>인사관리부</td><td>2021-06-17</td></tr>
+            <tr th:each="e : ${recentHires}">
+              <td><a th:href="@{/emp-detail(empId=${e.empId})}" th:text="${e.empName}">한규원</a></td>
+              <td th:text="${e.deptName} ?: '미배정'">미배정</td>
+              <td th:text="${e.hireDate}">2023-03-01</td>
+            </tr>
           </tbody>
         </table>
-        <a class="link-arrow mt-4" href="index.html" style="display: inline-block">전체 사원 보기</a>
+        <a class="link-arrow mt-4" th:href="@{/emps}" style="display: inline-block">전체 사원 보기</a>
       </div>
     </div>
   </main>

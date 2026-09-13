@@ -4,8 +4,102 @@
 <!-- Day 7 : src/main/resources/mapper/EmpMapper.xml
      namespace = 매퍼 인터페이스 FQCN, <select id> = 메서드명 -->
 <mapper namespace="com.example.hr.mapper.EmpMapper">
+
+	<sql id="whereCond">
+		<where>
+			<if test="keyword != null and keyword != ''">
+				and (e.emp_name like concat('%', #{keyword}, '%')
+					or e.email like concat('%', #{keyword}, '%')
+					or e.emp_no like concat('%', #{keyword}, '%'))
+			</if>
+			<if test="deptId != null and deptId != ''">
+				and e.dept_id = #{deptId}
+			</if>
+			<if test="workingOnly == true">
+				and e.ent_yn = 'N'
+			</if>
+		</where>
+	</sql>
+
 	<select id="selectByCond" resultType="EmpDto">
-		select * from emp
+		select e.emp_id, e.emp_name, e.email, e.emp_no, e.phone,
+		       e.dept_id, e.job_code, e.salary, e.bonus, e.manager_id,
+		       e.hire_date, e.ent_date, e.ent_yn,
+		       d.dept_title as dept_name, j.job_name as job_name
+		from emp e
+		left join dept d on e.dept_id = d.dept_id
+		left join job j on e.job_code = j.job_code
+		<include refid="whereCond" />
+		order by ${orderByClause}
+		limit #{pageSize} offset #{offset}
 	</select>
+
+	<select id="countByCond" resultType="int">
+		select count(*)
+		from emp e
+		<include refid="whereCond" />
+	</select>
+
+	<select id="selectRecentHires" resultType="EmpDto">
+		select e.emp_id, e.emp_name, e.email, e.hire_date, e.ent_yn,
+		       d.dept_title as dept_name
+		from emp e
+		left join dept d on e.dept_id = d.dept_id
+		order by e.hire_date desc
+		limit #{limit}
+	</select>
+
+	<select id="selectById" resultType="EmpDto">
+		select e.emp_id, e.emp_name, e.email, e.emp_no, e.phone,
+		       e.dept_id, e.job_code, e.salary, e.bonus, e.manager_id,
+		       e.hire_date, e.ent_date, e.ent_yn,
+		       d.dept_title as dept_name, j.job_name as job_name, m.emp_name as manager_name,
+		       n.national_name as location_name,
+		       sg.sal_level as sal_grade, sg.min_sal as sal_grade_min, sg.max_sal as sal_grade_max
+		from emp e
+		left join dept d on e.dept_id = d.dept_id
+		left join job j on e.job_code = j.job_code
+		left join emp m on e.manager_id = m.emp_id
+		left join location l on d.location_id = l.local_code
+		left join national n on l.national_code = n.national_code
+		left join sal_grade sg on e.salary between sg.min_sal and sg.max_sal
+		where e.emp_id = #{id}
+	</select>
+
+	<select id="selectByManagerId" resultType="EmpDto">
+		select e.emp_id, e.emp_name, e.manager_id, j.job_name as job_name
+		from emp e
+		left join job j on e.job_code = j.job_code
+		where e.manager_id = #{managerId}
+		order by e.emp_id
+	</select>
+
+	<insert id="insert">
+		insert into emp
+			(emp_id, emp_name, email, emp_no, phone, dept_id, job_code,
+			 salary, bonus, manager_id, hire_date, ent_yn)
+		values
+			(#{empId}, #{empName}, #{email}, #{empNo}, #{phone}, #{deptId}, #{jobCode},
+			 #{salary}, #{bonus}, #{managerId}, #{hireDate}, #{entYn})
+	</insert>
+
+	<update id="update">
+		update emp
+		set emp_name = #{empName},
+			email = #{email},
+			phone = #{phone},
+			dept_id = #{deptId},
+			job_code = #{jobCode},
+			salary = #{salary},
+			bonus = #{bonus},
+			manager_id = #{managerId},
+			hire_date = #{hireDate},
+			ent_yn = #{entYn}
+		where emp_id = #{empId}
+	</update>
+
+	<delete id="deleteById">
+		delete from emp where emp_id = #{id}
+	</delete>
 
 </mapper>
