@@ -48,12 +48,12 @@ public class EmpController {
 		
 	}
 	
-	@GetMapping("/dashboard")
+	@GetMapping("/admin/dashboard")
 	public void getMethodName() {
 		
 	}
 	
-	
+	 
 }
 
 

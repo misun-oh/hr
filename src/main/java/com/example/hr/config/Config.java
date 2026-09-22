@@ -25,8 +25,9 @@ public class Config implements WebMvcConfigurer{
 		registry.addInterceptor(new LoginCheckInterceptor())
 					.excludePathPatterns("/css/**", "/js/**", "/login", "/logout");
 		
+		// 관리자권한 체크
 		registry.addInterceptor(new AdminOnlyInterceptor())
-					.addPathPatterns("/dashboard");
+					.addPathPatterns("/admin/**");
 	}
 	
 	
