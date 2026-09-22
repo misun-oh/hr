@@ -19,7 +19,7 @@
     <div class="page-head">
       <div>
         <h1>사원 목록</h1>
-        <p>전체 [[${totalCnt}]]명 · 재직 20명</p>
+        <p>검색결과 [[${totalCnt}]]명</p>
       </div>
       <a class="btn btn--primary" href="emp-form.html">+ 사원 등록</a>
     </div>
@@ -42,31 +42,28 @@
       - 페이지네이션 링크도 같은 파라미터를 이어붙인다: ?keyword=&deptId=&workingOnly=&sort=&page=2
       - Thymeleaf 전환: th:value="${param.keyword}", 선택 유지 th:selected, 페이징은 @{/emps(keyword=${param.keyword}, page=${i})}
     -->
-    <form class="toolbar" method="get" action="/emps">
+    <form class="toolbar" th:object="${cond}" method="get" action="/emps">
       <div class="input-group">
-        <input class="input" type="search" name="keyword" placeholder="이름 · 사번 · 이메일" aria-label="검색어" style="min-width: 240px">
+        <input class="input" type="search" th:field="*{keyword}" placeholder="이름 · 사번 · 이메일" aria-label="검색어" style="min-width: 240px">
         <button class="btn btn--secondary" type="submit">검색</button>
       </div>
-      <select class="select" name="deptId" aria-label="부서" style="width: 150px">
+      <select class="select" th:field="*{deptId}" aria-label="부서" style="width: 150px">
         <option value="">전체 부서</option>
-        <option value="D1">인사관리부</option>
-        <option value="D2">회계관리부</option>
-        <option value="D5">해외영업1부</option>
-        <option value="D8">기술지원부</option>
-        <option value="D9">총무부</option>
+        <option th:each="d : ${depts}" th:value="${d.deptId}" th:text="${d.deptTitle}"></option>
       </select>
       <label class="switch">
-        <input type="checkbox" name="workingOnly" value="true" checked>
+        <input type="checkbox" th:field="*{workingOnly}">
         <span class="switch__track"><span class="switch__thumb"></span></span>
         <span class="switch__label">재직자만</span>
       </label>
       <span class="spacer"></span>
-      <select class="select" name="sort" aria-label="정렬" style="width: 130px">
-        <option value="hireDate">입사일순</option>
-        <option value="name">이름순</option>
-        <option value="salary">급여순</option>
+      <select class="select" th:field="*{sort}" aria-label="정렬" style="width: 130px">
+        <option value="HIRE_DATE">입사일순</option>
+        <option value="NAME">이름순</option>
+        <option value="SALARY">급여순</option>
+        <option value="EMP_ID">사번순</option>
       </select>
-      <a class="btn btn--ghost btn--sm" href="index.html">초기화</a>
+      <a class="btn btn--ghost btn--sm" href="/emps">초기화</a>
     </form>
 
     <!--
@@ -86,7 +83,7 @@
       <table class="table">
         <thead>
           <tr>
-            <th>사번</th><th>이름</th><th>부서</th><th>직급</th><th>입사일</th><th>상태</th><th>관리</th>
+            <th>사번</th><th>이름</th><th>부서</th><th>입사일</th><th>상태</th><th>관리</th>
           </tr>
         </thead>
         <tbody>
@@ -94,26 +91,33 @@
             <td th:text="${emp.empId}">200</td>
 			<!-- th:href = "@{경로(파라메터이름=${값})}"-->
             <td><a th:href="@{emp-detail(empId=${emp.empId})}" th:text="${emp.empName}">곽상혁</a></td>
-            <td>총무부</td><td>대표</td><td th:text="${emp.hireDate}">2013-03-02</td>
+            <td th:text="${emp.deptName}">총무부</td><td th:text="${emp.hireDate}">2013-03-02</td>
             <td>
-				<span class="badge badge--success badge--dot" 
+				<span class="badge badge--success badge--dot"
 					th:if="${emp.active}">재직</span>
 				<span class="badge badge--danger badge--dot"
-					th:if="${not emp.active}">퇴직</span>				
+					th:if="${not emp.active}">퇴직</span>
 			</td>
-            <td class="row-actions"><a href="emp-detail">상세</a><a href="emp-form.html">수정</a></td>
+            <td class="row-actions"><a th:href="@{emp-detail(empId=${emp.empId})}">상세</a><a href="emp-form.html">수정</a></td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- 페이징: 위 검색 폼의 파라미터를 그대로 이어붙여 조건을 유지한다 (여기선 예시로 page 만) -->
-    <nav class="pagination mt-6" aria-label="페이지">
-      <a class="pagination__item" href="?page=1" aria-label="이전">‹</a>
-      <a class="pagination__item" href="?page=1" aria-current="page">1</a>
-      <a class="pagination__item" href="?page=2">2</a>
-      <a class="pagination__item" href="?page=3">3</a>
-      <a class="pagination__item" href="?page=2" aria-label="다음">›</a>
+    <!-- 페이징: 검색 조건(cond)을 그대로 이어붙여야 페이지를 넘겨도 검색이 유지된다 -->
+    <nav class="pagination mt-6" aria-label="페이지" th:if="${pageDto.ePageNo >= pageDto.sPageNo}">
+      <a class="pagination__item" th:if="${pageDto.prev}"
+         th:href="@{/emps(keyword=${cond.keyword}, deptId=${cond.deptId}, workingOnly=${cond.workingOnly}, sort=${cond.sort}, page=${pageDto.sPageNo - 1})}"
+         aria-label="이전">‹</a>
+      <a class="pagination__item"
+         th:each="p : ${#numbers.sequence(pageDto.sPageNo, pageDto.ePageNo)}"
+         th:href="@{/emps(keyword=${cond.keyword}, deptId=${cond.deptId}, workingOnly=${cond.workingOnly}, sort=${cond.sort}, page=${p})}"
+         th:text="${p}"
+         th:classappend="${p == pageDto.page} ? 'is-current' : ''"
+         th:attr="aria-current=${p == pageDto.page} ? 'page' : null"></a>
+      <a class="pagination__item" th:if="${pageDto.next}"
+         th:href="@{/emps(keyword=${cond.keyword}, deptId=${cond.deptId}, workingOnly=${cond.workingOnly}, sort=${cond.sort}, page=${pageDto.ePageNo + 1})}"
+         aria-label="다음">›</a>
     </nav>
   </main>
 

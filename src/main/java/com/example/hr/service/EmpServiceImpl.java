@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
 import com.example.hr.dto.EmpDto;
+import com.example.hr.dto.EmpSearchCond;
+import com.example.hr.dto.PageDto;
 import com.example.hr.mapper.EmpMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -43,12 +45,14 @@ public class EmpServiceImpl implements EmpService {
 	}
 
 	@Override
-	public void selectByCond(Model model) {
-		List<EmpDto> list = mapper.selectByCond();
-		int totalCnt = mapper.totalCnt();
-		
+	public void selectByCond(EmpSearchCond cond, Model model) {
+		// countByCond·selectByCond는 서로 독립적인 쿼리 - 둘 다 실행한 뒤에 PageDto를 만든다
+		int totalCnt = mapper.countByCond(cond);
+		List<EmpDto> list = mapper.selectByCond(cond);
+
 		model.addAttribute("list", list);
 		model.addAttribute("totalCnt", totalCnt);
+		model.addAttribute("pageDto", new PageDto(cond.getPage(), totalCnt));
 	}
 
 	@Override

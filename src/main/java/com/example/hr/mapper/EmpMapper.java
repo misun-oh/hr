@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import com.example.hr.dto.EmpDto;
+import com.example.hr.dto.EmpSearchCond;
 
 /*
  * 1. 쿼리는 잘 실행되는지 확인을 위해 클라이언트도구(mysql 워크벤치)에서 확인!!!
@@ -19,9 +20,13 @@ public interface EmpMapper {
 	// 전체 사원의 수를 카운트
 	@Select("select count(*) from emp")
 	public int totalCnt();
-	
-	public List<EmpDto> selectByCond();
-	
+
+	// 검색조건(cond)에 맞는 현재 페이지 목록
+	public List<EmpDto> selectByCond(EmpSearchCond cond);
+
+	// 검색조건(cond)에 맞는 전체 건수 (페이징 계산용)
+	public int countByCond(EmpSearchCond cond);
+
 	@Select("select * from emp where emp_id=#{id}")
 	public EmpDto selectById(String id);
 	

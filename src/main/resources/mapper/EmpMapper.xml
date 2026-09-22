@@ -4,8 +4,41 @@
 <!-- Day 7 : src/main/resources/mapper/EmpMapper.xml
      namespace = 매퍼 인터페이스 FQCN, <select id> = 메서드명 -->
 <mapper namespace="com.example.hr.mapper.EmpMapper">
+
+	<!-- selectByCond / countByCond 가 공유하는 검색 조건 -->
+	<sql id="searchWhere">
+		<where>
+			<if test="keyword != null and keyword != ''">
+				AND (e.emp_name LIKE CONCAT('%', #{keyword}, '%')
+					 OR e.email LIKE CONCAT('%', #{keyword}, '%')
+					 OR e.emp_no LIKE CONCAT('%', #{keyword}, '%'))
+			</if>
+			<if test="deptId != null and deptId != ''">
+				AND e.dept_id = #{deptId}
+			</if>
+			<if test="workingOnly">
+				AND e.ent_yn = 'N'
+			</if>
+		</where>
+	</sql>
+
+	<!-- 검색조건에 맞는 현재 페이지 목록 -->
 	<select id="selectByCond" resultType="EmpDto">
-		select * from emp
+		SELECT e.emp_id, e.emp_name, e.email, e.emp_no,
+			   e.dept_id, d.dept_title AS deptName,
+			   e.hire_date, e.ent_yn, e.phone, e.salary, e.bonus
+		FROM emp e
+		LEFT JOIN dept d ON e.dept_id = d.dept_id
+		<include refid="searchWhere"/>
+		ORDER BY ${sort.column} ${sort.direction}
+		LIMIT #{size} OFFSET #{offset}
+	</select>
+
+	<!-- 검색조건에 맞는 전체 건수 (페이징 계산용) -->
+	<select id="countByCond" resultType="int">
+		SELECT COUNT(*)
+		FROM emp e
+		<include refid="searchWhere"/>
 	</select>
 
 	<update id="updateFailCount">

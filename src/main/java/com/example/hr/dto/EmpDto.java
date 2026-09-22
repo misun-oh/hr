@@ -10,6 +10,8 @@ public class EmpDto {
 	private String empName;
 	private String email;
 	private String empNo;
+	private String deptId;
+	private String deptName;
 	private LocalDate hireDate;
 	// entYn : 퇴직여부(Y:퇴사, N:재직)
 	private String entYn;

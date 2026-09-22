@@ -97,6 +97,17 @@ public class PageDto {
         this(1, totalCnt);
     }
 
+    // 화면(Thymeleaf)·서비스에서 값을 꺼내 쓰기 위한 getter
+    public int getPage() { return page; }
+    public int getSize() { return size; }
+    public int getTotalCnt() { return totalCnt; }
+    public int getSNo() { return sNo; }
+    public int getENo() { return eNo; }
+    public int getSPageNo() { return sPageNo; }
+    public int getEPageNo() { return ePageNo; }
+    public boolean isPrev() { return isPrev; }
+    public boolean isNext() { return isNext; }
+
 
     public static void main(String[] args) {
         int size = 10;

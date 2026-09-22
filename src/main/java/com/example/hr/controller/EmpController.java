@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.hr.dto.EmpDto;
-import com.example.hr.dto.PageDto;
+import com.example.hr.dto.EmpSearchCond;
+import com.example.hr.service.DeptService;
 import com.example.hr.service.EmpService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -20,16 +22,20 @@ public class EmpController {
 
 	@Autowired
 	private EmpService service;
-	
+
+	@Autowired
+	private DeptService deptService;
+
 	// 여러개의 주소를 매핑
+	// 검색조건(keyword, deptId, workingOnly, sort)+페이지 정보(page)를 cond 하나로 받는다
 	@GetMapping({"/", "/emps"})
-	public String getMethodName(Model model) {
-		
-		//model.addAttribute("totalCnt", service.totalCnt());
-		service.selectByCond(model);
-		
-		model.addAttribute("pageDto", new PageDto(130));	
-		
+	public String getMethodName(@ModelAttribute EmpSearchCond cond, Model model) {
+
+		service.selectByCond(cond, model);
+
+		model.addAttribute("cond", cond);
+		model.addAttribute("depts", deptService.selectAll());
+
 		return "/index";
 	}
 	
