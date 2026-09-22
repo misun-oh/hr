@@ -53,8 +53,19 @@ public class LoginController {
 			session.setAttribute("user", emp);
 			int res = service.resetFailCount(id);
 			System.out.println("res : " + res);
+			
+			// 이전 요청정보가 있는경우 요청페이지로 이동
+			if(session.getAttribute("prevRequestUrl") != null) {
+				String prev = (String)session.getAttribute("prevRequestUrl");
+				session.removeAttribute("prevRequestUrl");
+				return "redirect:" + prev; 
+			}
+			
 			// 사원 목록 페이지로 이동하기
 			return "redirect:emps";
+			
+			
+			
 		} catch (Exception e) {
 			// failCnt 업데이트
 			//e.printStackTrace();

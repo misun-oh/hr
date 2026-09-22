@@ -25,7 +25,7 @@ public class EmpDto {
 	// 계정 잠금 여부 (0:정상, 1:잠금)
 	private int isLocked;
 	private int loginFailCount;
-
+	private String role;
 	
 	public void setEntYn(String entYn) {
 		this.entYn = entYn;

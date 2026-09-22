@@ -46,9 +46,13 @@ public class EmpController {
 		
 		//model.addAttribute("emp", service.selectById(empId));
 		
-		
+	}
+	
+	@GetMapping("/dashboard")
+	public void getMethodName() {
 		
 	}
+	
 	
 }
 
