@@ -41,6 +41,11 @@
 		<include refid="searchWhere"/>
 	</select>
 
+	<insert id="insertEmp" parameterType="EmpDto">
+		INSERT INTO emp (emp_id, emp_name, email, emp_no, dept_id, salary, hire_date, ent_yn, phone)
+		VALUES (#{empId}, #{empName}, #{email}, #{empNo}, #{deptId}, #{salary}, #{hireDate}, 'N', #{phone})
+	</insert>
+
 	<update id="updateFailCount">
 		update emp 
 		set 	login_fail_count = login_fail_count + 1 

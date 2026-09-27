@@ -21,18 +21,13 @@
         <h1>사원 목록</h1>
         <p>검색결과 [[${totalCnt}]]명</p>
       </div>
-      <a class="btn btn--primary" href="emp-form.html">+ 사원 등록</a>
+      <a class="btn btn--primary" th:href="@{/emp-form}">+ 사원 등록</a>
     </div>
 
-    <!--
-      처리 결과(플래시) 메시지 자리.
-      등록/수정/삭제 후 목록으로 redirect(PRG) 하면서 RedirectAttributes 로 넘긴 메시지를 여기 렌더링한다.
-      Thymeleaf: <div class="alert alert--success" role="status" th:if="${msg}" th:text="${msg}"></div>
-      아래는 "방금 저장하고 돌아온" 상태 예시 (서버에서는 조건부로만 노출).
-    -->
-    <div class="alert alert--success mb-4" role="status">
+    <!-- 처리 결과(플래시) 메시지: 등록/수정/삭제 후 redirect(PRG) 되면서 넘어온 RedirectAttributes를 렌더링한다 -->
+    <div class="alert alert--success mb-4" role="status" th:if="${msg}">
       <span class="alert__icon" aria-hidden="true">✓</span>
-      <div class="alert__body">새 사원이 등록되었습니다.</div>
+      <div class="alert__body" th:text="${msg}"></div>
       <button class="alert__close" type="button" data-dismiss="alert" aria-label="닫기">×</button>
     </div>
 

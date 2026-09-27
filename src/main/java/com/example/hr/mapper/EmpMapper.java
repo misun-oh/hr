@@ -32,8 +32,14 @@ public interface EmpMapper {
 	
 	@Select("select * from emp where id=#{id}")
 	public EmpDto selectByUserId(String id);
-	
-	
+
+	// emp_id는 auto_increment가 아닌 수동 코드(varchar(3))라 등록 전에 다음 번호를 직접 계산해야 한다.
+	@Select("select coalesce(max(cast(emp_id as unsigned)), 199) + 1 from emp")
+	int nextEmpId();
+
+	// 사원 등록 - 성공 시 emp.empId에 nextEmpId()로 미리 채운 값이 그대로 들어간다.
+	int insertEmp(EmpDto emp);
+
 	public int updateFailCount(String id);
 	
 	@Update("update emp set is_locked=1 where id=#{id}")

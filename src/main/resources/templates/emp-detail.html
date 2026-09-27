@@ -69,9 +69,20 @@
           <tr><th>재직 여부</th><td>
 				<span class="badge badge--success" th:if="${emp.active}">재직</span>
 				<span class="badge badge--danger" th:if="${not emp.active}">퇴사</span>
-			
+
 			</td></tr>
         </table>
+
+        <h3 class="mt-6">첨부 이미지</h3>
+        <div class="row" style="--gap: var(--space-2); flex-wrap: wrap" th:if="${not #lists.isEmpty(attachments)}">
+          <a th:each="att : ${attachments}" th:href="@{/attachments/{id}(id=${att.attachmentId})}" target="_blank">
+            <img th:src="@{/attachments/{id}(id=${att.attachmentId})}"
+                 th:alt="${att.originalName}"
+                 width="120" height="120"
+                 style="object-fit: cover; border-radius: var(--radius-md)">
+          </a>
+        </div>
+        <p class="muted" th:if="${#lists.isEmpty(attachments)}">첨부된 이미지가 없습니다.</p>
       </div>
 
       <div class="tabs__panel" role="tabpanel" id="p-pay" aria-labelledby="t-pay" hidden>

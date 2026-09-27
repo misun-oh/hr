@@ -1,6 +1,8 @@
 package com.example.hr.service;
 
 import com.example.hr.config.Config;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.example.hr.dto.AttachmentDto;
 import com.example.hr.dto.EmpDto;
+import com.example.hr.dto.EmpForm;
 import com.example.hr.dto.EmpSearchCond;
 import com.example.hr.dto.PageDto;
 import com.example.hr.mapper.EmpMapper;
@@ -33,10 +38,13 @@ public class EmpServiceImpl implements EmpService {
 	// 2. Setter 주입
 	// 3. 생성자 주입
 	private final EmpMapper mapper;
-	
+	private final AttachmentService attachmentService;
+
 	// 필드주입
 	@Autowired
 	private BCryptPasswordEncoder encoder;
+
+	private static final String REF_TYPE_EMP = "EMP";
 	
 	@Override
 	public int totalCnt() {
@@ -101,6 +109,43 @@ public class EmpServiceImpl implements EmpService {
 	@Override
 	public int resetFailCount(String id) {
 		return mapper.resetFailCount(id);
+	}
+
+	@Override
+	@Transactional
+	public void register(EmpForm form, List<MultipartFile> images) throws IOException {
+		List<MultipartFile> files = (images == null) ? List.of()
+				: images.stream().filter(f -> f != null && !f.isEmpty()).toList();
+
+		if (files.size() > 5) {
+			throw new IllegalArgumentException("이미지는 최대 5장까지 업로드할 수 있습니다.");
+		}
+
+		EmpDto emp = new EmpDto();
+		emp.setEmpId(mapper.nextEmpId());
+		emp.setEmpName(form.getEmpName());
+		emp.setEmpNo(form.getEmpNo());
+		emp.setEmail(form.getEmail());
+		emp.setPhone(form.getPhone());
+		emp.setDeptId(form.getDeptId());
+		emp.setSalary(form.getSalary());
+		emp.setHireDate(form.getHireDate());
+
+		mapper.insertEmp(emp);
+
+		// 사번(emp_id)이 발급된 후에야 그 사번으로 첨부파일을 등록할 수 있다.
+		String empId = String.valueOf(emp.getEmpId());
+		List<AttachmentDto> saved = new ArrayList<>();
+		try {
+			for (MultipartFile file : files) {
+				saved.add(attachmentService.save(REF_TYPE_EMP, empId, file));
+			}
+		} catch (Exception e) {
+			for (AttachmentDto a : saved) {
+				attachmentService.deleteStoredFile(a.getStoredPath());
+			}
+			throw e;
+		}
 	}
 }
 
