@@ -1,8 +1,11 @@
 package com.example.hr.dto;
 
+import lombok.Data;
+
 /*
 페이지 처리를 위한 객체
 */
+@Data
 public class PageDto {
     // 사용자가 요청한 페이지 정보
     // 기본값 - 1 (사용자가 요청한 페이지가 없는경우 무조건 1페이지를 보여준다)
@@ -62,11 +65,12 @@ public class PageDto {
 
         // 총 99건의 데이터가 있고 요청한 페이지 번호가 2페이지라면
         // 11번부터 20번까지 데이터를 조회 하고 싶다
-        this.eNo = (int)Math.ceil(totalCnt/(double)size) * page;
+        this.eNo = page*size;
         this.sNo = eNo - (size-1);
         
         System.out.println("게시물의 시작번호 : " + sNo);
         System.out.println("게시물의 끝번호 : " + eNo);
+
 
 
         // 페이지 네비게이션을 그리기 위해서 값을 초기화
@@ -89,6 +93,10 @@ public class PageDto {
         ePageNo = ePageNo > realEndPageNo ? realEndPageNo : ePageNo;
          
         isNext = ePageNo < realEndPageNo;
+        
+        
+        System.out.println("페이지블럭의 시작 번호 : " + sPageNo);
+        System.out.println("페이지블럭의 끝 번호 : " + ePageNo);
     }
 
 
@@ -99,22 +107,26 @@ public class PageDto {
 
 
     public static void main(String[] args) {
-        int size = 10;
+        
+    	int size = 10;
         int totalCnt = 99;
         int page = 2;
+        
+        // 생성해서 사용해야함
+        PageDto pd = new PageDto(page,totalCnt);
         // int 타입 연산결과는 int형 
-        System.out.println(totalCnt/size);
+        System.out.println(pd.totalCnt/pd.size);
         // 더블타입으로 형변환
-        System.out.println(size*1.0);
-        System.out.println((double)size);
-        System.out.println(totalCnt/(size*1.0));
+        System.out.println(pd.size*1.0);
+        System.out.println((double)pd.size);
+        System.out.println(pd.totalCnt/(pd.size*1.0));
         // Math.ceil() 올림처리
         
         // 데이터 베이스에서 데이터를 조회하기 위해서 필요한 정보
         // 게시물의 끝번호
-        System.out.println((int)(Math.ceil(totalCnt/(size*1.0))*page));
+        System.out.println((int)(Math.ceil(pd.totalCnt/(pd.size*1.0))*pd.page));
         // 게시물의 시작번호
-        System.out.println((int)(Math.ceil(totalCnt/(size*1.0))*page) - (size-1));
+        System.out.println((int)(Math.ceil(pd.totalCnt/(pd.size*1.0))*pd.page) - (pd.size-1));
 
 
         PageDto pageDto = new PageDto(7, 150);

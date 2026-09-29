@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 
 import com.example.hr.dto.EmpDto;
+import com.example.hr.dto.EmpSearchCond;
 import com.example.hr.mapper.EmpMapper;
 
 import lombok.RequiredArgsConstructor;
@@ -37,15 +38,16 @@ public class EmpServiceImpl implements EmpService {
 	private BCryptPasswordEncoder encoder;
 	
 	@Override
-	public int totalCnt() {
+	public int totalCnt(EmpSearchCond cond) {
 		
-		return mapper.totalCnt();
+		return mapper.totalCnt(cond);
 	}
 
 	@Override
-	public void selectByCond(Model model) {
-		List<EmpDto> list = mapper.selectByCond();
-		int totalCnt = mapper.totalCnt();
+	public void selectByCond(Model model, EmpSearchCond cond) {
+		System.out.println(cond);
+		List<EmpDto> list = mapper.selectByCond(cond);
+		int totalCnt = mapper.totalCnt(cond);
 		
 		model.addAttribute("list", list);
 		model.addAttribute("totalCnt", totalCnt);

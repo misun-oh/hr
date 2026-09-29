@@ -4,8 +4,41 @@
 <!-- Day 7 : src/main/resources/mapper/EmpMapper.xml
      namespace = 매퍼 인터페이스 FQCN, <select id> = 메서드명 -->
 <mapper namespace="com.example.hr.mapper.EmpMapper">
+	
+	<sql id="searchWhere">
+		<where>
+			<if test="keyword != null and keyword != ''">
+				(
+				emp_name like concat('%', #{keyword}, '%')
+		        or email like concat('%', #{keyword}, '%')
+		        or emp_id like concat('%', #{keyword}, '%')
+		        )
+	        </if>
+	        <if test="deptId != null and deptId != ''">
+				AND dept_id = #{deptId}
+			</if>
+			<if test="workingOnly">
+				AND ent_yn = 'N'
+			</if>
+		</where>
+	</sql>
+
+
 	<select id="selectByCond" resultType="EmpDto">
-		select * from emp
+		select * 
+		from emp e
+		left join dept d using (dept_id)
+		left join job j using(job_code)
+		<include refid="searchWhere"></include>
+		<!-- size : 시작위치, offset : 가지고올 건수  -->
+		 order by ${sort}
+		limit #{size}, #{offset}
+	</select>
+	
+	<select id="totalCnt" resultType="int">
+		select count(*) 
+		from emp
+		<include refid="searchWhere"></include>
 	</select>
 
 	<update id="updateFailCount">

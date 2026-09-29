@@ -27,11 +27,16 @@ public class EmpDto {
 	private int loginFailCount;
 	private String role;
 	
+	private String deptTitle;
+	private String jobName;
+	
+	
 	public void setEntYn(String entYn) {
 		this.entYn = entYn;
 		// 삼항연산자를 이용해서 active값을 세팅
 		active = entYn.equalsIgnoreCase("Y") ? false : true;
 	}	
+	
 	
 	
 	

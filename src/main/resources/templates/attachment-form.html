@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>첨부파일 테스트 · 사원관리</title>
+  <link rel="stylesheet" href="css/basic.css">
+  <link rel="stylesheet" href="css/component.css">
+  <link rel="stylesheet" href="css/app-shell.css">
+  <link rel="stylesheet" href="css/hr.css">
+  <script src="js/component.js" defer></script>
+</head>
+<body>
+  <header class="site-header" th:replace="~{./fragments/layout :: header}"></header>
+
+  <main class="app-main container">
+    <div class="page-head">
+      <div>
+        <h1>첨부파일 테스트</h1>
+        <p>Emp에 연결하기 전, 공통 첨부파일 기능만 독립적으로 확인하는 화면입니다.</p>
+      </div>
+    </div>
+
+    <!--
+      #strings.isEmpty(x) : x가 null이거나 빈 문자열("")이면 true
+      th:if="${not #strings.isEmpty(msg)}" : msg가 null도 아니고 빈 문자열도 아닐 때만 이 div 전체를 렌더링
+      (th:if="${msg}"만 쓰면 null/빈문자열일 때는 안 보이지만, 의도를 명확히 드러내려고 isEmpty로 명시함)
+    -->
+    <div class="alert alert--success mb-4" role="status" th:if="${not #strings.isEmpty(msg)}">
+      <span class="alert__icon" aria-hidden="true">✓</span>
+      <div class="alert__body" th:text="${msg}"></div>
+    </div>
+    <div class="alert alert--danger mb-4" role="status" th:if="${not #strings.isEmpty(error)}">
+      <span class="alert__icon" aria-hidden="true">⚠</span>
+      <div class="alert__body" th:text="${error}"></div>
+    </div>
+
+	<!-- 
+	첨부파일을 서버로 전송 하기 위해서 2가지 설정이 필요
+	1. 설정을 추가 - 전송할 파일의 사이즈, 파일을 저장할 위치 - 설정파일로 부터 위치를 읽어서 해당 위치에 파일을 저장
+	2. form의 enctype을 multipart/form-data
+	 -->
+    <form class="card" style="padding: var(--space-6)"
+          th:action="@{/attachment-form}" method="post" enctype="multipart/form-data">
+      <div class="field">
+        <label class="label" for="f-files">첨부 파일</label>
+        <input class="input" id="f-files" name="files" type="file" multiple
+               accept="image/jpeg,image/png,image/webp">
+        <p class="form-hint">JPG, PNG, WEBP / 장당 최대 5MB, 최대 5장</p>
+        
+        <!-- 파일을 선택 할 수 있는 요소를 생성  -->
+        <input type="file" multiple name="fff">
+        
+        
+      </div>
+      <div class="row row--between mt-6">
+        <span></span>
+        <button class="btn btn--primary" type="submit">등록</button>
+      </div>
+    </form>
+
+    <h3 class="mt-6 mb-4">등록된 첨부파일</h3>
+    <div class="table-wrap mb-4" th:if="${not #lists.isEmpty(attachments)}">
+      <table class="table">
+        <thead>
+          <tr><th>파일명</th><th>크기</th><th>업로드 일시</th></tr>
+        </thead>
+        <tbody>
+          <tr th:each="att : ${attachments}">
+            <td><a th:href="@{/attachments/{id}(id=${att.attachmentId})}" th:text="${att.originalName}" target="_blank"></a></td>
+            <td th:text="${att.fileSize}"></td>
+            <td th:text="${att.uploadedAt}"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted mb-4" th:if="${#lists.isEmpty(attachments)}">등록된 첨부파일이 없습니다.</p>
+  </main>
+
+  <footer class="site-footer" th:replace="~{./fragments/layout :: footer}"></footer>
+</body>
+</html>

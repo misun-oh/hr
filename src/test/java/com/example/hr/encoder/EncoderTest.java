@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.example.hr.dto.EmpDto;
+import com.example.hr.dto.EmpSearchCond;
 import com.example.hr.mapper.EmpMapper;
 
 @SpringBootTest
@@ -30,7 +31,7 @@ public class EncoderTest {
 	@Test
 	public void updatePWAll() {
 		// 1. 사용자목록 조회
-		List<EmpDto> list = mapper.selectByCond();
+		List<EmpDto> list = mapper.selectByCond(new EmpSearchCond(2));
 		
 		// 2. 반복문 
 		for(EmpDto emp : list) {

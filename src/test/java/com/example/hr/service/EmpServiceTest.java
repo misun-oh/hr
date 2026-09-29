@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.hr.dto.EmpDto;
+import com.example.hr.dto.EmpSearchCond;
 
 @SpringBootTest
 public class EmpServiceTest {
@@ -16,14 +17,14 @@ public class EmpServiceTest {
 	
 	@Test
 	public void test() {
-		int totalCnt = service.totalCnt();
+		int totalCnt = service.totalCnt(new EmpSearchCond());
 		System.out.println(totalCnt);
 		assertEquals(21, totalCnt);
 	}
 	
 	@Test
 	public void selectByCond() {
-		service.selectByCond(null);
+		service.selectByCond(null, new EmpSearchCond(2));
 	}
 	
 	@Test

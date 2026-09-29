@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import com.example.hr.dto.EmpDto;
+import com.example.hr.dto.EmpSearchCond;
 
 /*
  * 스프링컨테이너로 부터 객체를 주입 받기 위해서는
@@ -31,7 +32,7 @@ public class EmpMapperTest {
 	 */
 	@Test
 	public void test1() {
-		int totalCnt = mapper.totalCnt();
+		int totalCnt = mapper.totalCnt(new EmpSearchCond());
 		System.out.println(totalCnt);
 		
 		// 검증
@@ -40,7 +41,9 @@ public class EmpMapperTest {
 	
 	@Test
 	public void selectByCond() {
-		List<EmpDto> list = mapper.selectByCond();
+		EmpSearchCond cond = new EmpSearchCond(2);
+		
+		List<EmpDto> list = mapper.selectByCond(cond);
 		System.out.println(list);
 		
 	}

@@ -11,7 +11,8 @@
   <script src="js/component.js" defer></script>
 </head>
 <body>
-	
+	[[${pageDto}]]
+	[[${pageDto.totalCnt}]]
   <!-- 공통 메뉴 — templates/hr/_menu.html 참고 (Thymeleaf 전환 시 fragment 로) -->
   <header th:replace="~{./fragments/layout :: header}"></header>
 
@@ -44,7 +45,7 @@
     -->
     <form class="toolbar" method="get" action="/emps">
       <div class="input-group">
-        <input class="input" type="search" name="keyword" placeholder="이름 · 사번 · 이메일" aria-label="검색어" style="min-width: 240px">
+        <input class="input" type="search" name="keyword" placeholder="이름 · 사번 · 이메일" aria-label="검색어" style="min-width: 240px" th:value="${cond.keyword}">
         <button class="btn btn--secondary" type="submit">검색</button>
       </div>
       <select class="select" name="deptId" aria-label="부서" style="width: 150px">
@@ -62,8 +63,8 @@
       </label>
       <span class="spacer"></span>
       <select class="select" name="sort" aria-label="정렬" style="width: 130px">
-        <option value="hireDate">입사일순</option>
-        <option value="name">이름순</option>
+        <option value="hire_Date">입사일순</option>
+        <option value="emp_name">이름순</option>
         <option value="salary">급여순</option>
       </select>
       <a class="btn btn--ghost btn--sm" href="index.html">초기화</a>
@@ -94,7 +95,8 @@
             <td th:text="${emp.empId}">200</td>
 			<!-- th:href = "@{경로(파라메터이름=${값})}"-->
             <td><a th:href="@{emp-detail(empId=${emp.empId})}" th:text="${emp.empName}">곽상혁</a></td>
-            <td>총무부</td><td>대표</td><td th:text="${emp.hireDate}">2013-03-02</td>
+            <td th:text="${emp.deptTitle}">총무부</td>
+            <td th:text="${emp.jobName}">대표</td><td th:text="${emp.hireDate}">2013-03-02</td>
             <td>
 				<span class="badge badge--success badge--dot" 
 					th:if="${emp.active}">재직</span>
@@ -108,12 +110,18 @@
     </div>
 
     <!-- 페이징: 위 검색 폼의 파라미터를 그대로 이어붙여 조건을 유지한다 (여기선 예시로 page 만) -->
-    <nav class="pagination mt-6" aria-label="페이지">
-      <a class="pagination__item" href="?page=1" aria-label="이전">‹</a>
-      <a class="pagination__item" href="?page=1" aria-current="page">1</a>
-      <a class="pagination__item" href="?page=2">2</a>
-      <a class="pagination__item" href="?page=3">3</a>
-      <a class="pagination__item" href="?page=2" aria-label="다음">›</a>
+    <nav class="pagination mt-6" aria-label="페이지" th:if=${pageDto!=null}>
+      <a class="pagination__item" th:href="@{/emps(page=${pageDto.sPageNo-1})}" aria-label="이전" th:if=${pageDto.isPrev}>‹</a>
+      <!-- 페이지 블럭의 시작번호~ 페이지 블럭의 끝번호까지 반복해서 출력 -->
+      <!-- 반복문을 통해 페이지번호를 출력 = p
+      		요청페이지번호 - pageDto.page -->
+      
+      <a class="pagination__item" th:href="@{/emps(page=${p})}"
+      	th:each="p : ${#numbers.sequence(pageDto.sPageNo, pageDto.ePageNo)}"
+      	th:aria-current="${pageDto.page==p?'page':''}"
+      	th:text=${p}>1</a>
+      
+      <a class="pagination__item" th:href="@{/emps(page=${pageDto.ePageNo+1})}" aria-label="다음" th:if=${pageDto.isNext}>›</a>
     </nav>
   </main>
 

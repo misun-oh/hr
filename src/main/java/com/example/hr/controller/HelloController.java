@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.example.hr.dto.EmpSearchCond;
 import com.example.hr.service.EmpService;
 
 @Controller
@@ -18,7 +19,7 @@ public class HelloController {
 	
 	@GetMapping("/hello")
 	public void hello(Model model){
-		int totalCnt = service.totalCnt();
+		int totalCnt = service.totalCnt(new EmpSearchCond());
 		// 화면에 데이터를 전달 하기 위해서 Model에 저장
 		model.addAttribute("totalCnt", totalCnt);
 		
